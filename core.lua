@@ -12,33 +12,42 @@ local MA = MapPinAnnounce
 -- Slash commands
 SLASH_MapPinAnnounce1 = '/pin'
 function SlashCmdList.MapPinAnnounce(msg, editbox)
-	if UnitExists("target") then
-		MA.AnnouncePinForTarget()
-	else
-		MA.AnnouncePinForPlayer()
-	end
-end
-
-function MA.AnnouncePinForTarget()
-	local uiMapPoint = MA.GetUnitPosition("target")
-	if uiMapPoint then
-		C_Map.SetUserWaypoint(uiMapPoint)
-		local targetName = UnitName("target")
-		local hyperlink = C_Map.GetUserWaypointHyperlink()
-		local x = uiMapPoint.position.x*100
-		local y = uiMapPoint.position.y*100
-		local coordText = string.format("(%d,%d)", x, y)
-		local announcement = targetName .. " - " .. hyperlink .. " - " .. coordText
+	local unit, message = MA.FindUnitAndMessage(msg)
+	local announcement = MA.CreateAnnouncement(unit, message)
+	if announcement then
 		SendChatMessage(announcement)
 	end
 end
 
-function MA.AnnouncePinForPlayer()
-	local uiMapPoint = MA.GetUnitPosition("player")
+function MA.FindUnitAndMessage(msg)
+	local unit, defaultMessage = MA.FindUnitAndDefaultMessage()
+	if string.len(msg) > 0 then
+		return unit, msg
+	else
+		return unit, defaultMessage
+	end
+end
+
+function MA.FindUnitAndDefaultMessage()
+	if UnitExists("target") then
+		local targetMessage = UnitName("target")
+		return "target", targetMessage
+	else
+		local playerMessage = "My location"
+		return "player", playerMessage
+	end
+end
+
+function MA.CreateAnnouncement(unit, message)
+	local uiMapPoint = MA.GetUnitPosition(unit)
 	if uiMapPoint then
 		C_Map.SetUserWaypoint(uiMapPoint)
 		local hyperlink = C_Map.GetUserWaypointHyperlink()
-		SendChatMessage("[MapPinAnnounce] "..hyperlink)
+		local x = uiMapPoint.position.x*100
+		local y = uiMapPoint.position.y*100
+		local coordText = string.format("(%d,%d)", x, y)
+		local announcement = message .. " - " .. hyperlink .. " - " .. coordText
+		return announcement
 	end
 end
 
