@@ -15,7 +15,7 @@ function SlashCmdList.MapPinAnnounce(msg, editbox)
 	local unit, message = MA.FindUnitAndMessage(msg)
 	local announcement = MA.CreateAnnouncement(unit, message)
 	if announcement then
-		SendChatMessage(announcement)
+		SendChatMessage(announcement, "CHANNEL", nil, 1)
 	end
 end
 
