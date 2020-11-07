@@ -29,7 +29,7 @@ function MA.AnnouncePinForTarget()
 		local y = uiMapPoint.position.y*100
 		local coordText = string.format("(%d,%d)", x, y)
 		local announcement = targetName .. " - " .. hyperlink .. " - " .. coordText
-		print(announcement)
+		SendChatMessage(announcement)
 	end
 end
 
@@ -38,7 +38,7 @@ function MA.AnnouncePinForPlayer()
 	if uiMapPoint then
 		C_Map.SetUserWaypoint(uiMapPoint)
 		local hyperlink = C_Map.GetUserWaypointHyperlink()
-		print("[MapPinAnnounce] "..hyperlink)
+		SendChatMessage("[MapPinAnnounce] "..hyperlink)
 	end
 end
 
