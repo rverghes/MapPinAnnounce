@@ -1,45 +1,49 @@
 --------------------------------
 -- MapPin Announce
 --
--- Creates a Map Pin and then announces it in a chat channel
+-- Creates a Map Pin and then announces it in the General chat channel
 --
 -- Author: Rohan Verghese
 -- Email: rverghes@gmail.com
 --------------------------------
 local ADDON_NAME,MapPinAnnounce = ...
 local MA = MapPinAnnounce
+local GENERAL_CHANNEL = 1
 
 -- Slash commands
 SLASH_MapPinAnnounce1 = '/pin'
 function SlashCmdList.MapPinAnnounce(msg, editbox)
-	local unit, message = MA.FindUnitAndMessage(msg)
-	local announcement = MA.CreateAnnouncement(unit, message)
+	local uiMapPoint = MA.FindMapPoint()
+	local message = MA.FindMessage(msg)
+	local announcement = MA.CreateWaypointAndAnnouncement(uiMapPoint, message)
 	if announcement then
-		SendChatMessage(announcement, "CHANNEL", nil, 1)
+		SendChatMessage(announcement, "CHANNEL", nil, GENERAL_CHANNEL)
 	end
 end
 
-function MA.FindUnitAndMessage(msg)
-	local unit, defaultMessage = MA.FindUnitAndDefaultMessage()
+-- Map functions only work for the player
+function MA.FindMapPoint()
+	local uiMapID = C_Map.GetBestMapForUnit("player")
+	if uiMapID then
+		local position = C_Map.GetPlayerMapPosition(uiMapID, "player")
+		if position then
+			local uiMapPoint = UiMapPoint.CreateFromVector2D(uiMapID, position)
+			return uiMapPoint
+		end
+	end
+end
+
+function MA.FindMessage(msg)
 	if string.len(msg) > 0 then
-		return unit, msg
+		return msg
+	elseif UnitExists("target") then
+		return UnitName("target")
 	else
-		return unit, defaultMessage
+		return "My location"
 	end
 end
 
-function MA.FindUnitAndDefaultMessage()
-	if UnitExists("target") then
-		local targetMessage = UnitName("target")
-		return "target", targetMessage
-	else
-		local playerMessage = "My location"
-		return "player", playerMessage
-	end
-end
-
-function MA.CreateAnnouncement(unit, message)
-	local uiMapPoint = MA.GetUnitPosition(unit)
+function MA.CreateWaypointAndAnnouncement(uiMapPoint, message)
 	if uiMapPoint then
 		C_Map.SetUserWaypoint(uiMapPoint)
 		local hyperlink = C_Map.GetUserWaypointHyperlink()
@@ -51,13 +55,3 @@ function MA.CreateAnnouncement(unit, message)
 	end
 end
 
-function MA.GetUnitPosition(unitId)
-	local uiMapID = C_Map.GetBestMapForUnit("player")
-	if uiMapID then
-		local position = C_Map.GetPlayerMapPosition(uiMapID, "player")
-		if position then
-			local uiMapPoint = UiMapPoint.CreateFromVector2D(uiMapID, position)
-			return uiMapPoint
-		end
-	end
-end
