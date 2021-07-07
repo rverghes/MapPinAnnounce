@@ -1,6 +1,6 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: MapPin Announce
 ## Author: Rohan Verghese
-## Version: 9.0.5.1
+## Version: 9.1.0.1
 
 core.lua
